@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRAMOPHY PRO - Advanced Grammar & Plagiarism Checker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: white;
+            border-bottom: 3px solid #667eea;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .input-section {
+            margin-bottom: 20px;
+        }
+
+        .input-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            resize: vertical;
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .file-upload {
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: border-color 0.3s ease;
+        }
+
+        .file-upload:hover {
+            border-color: #667eea;
+        }
+
+        .file-upload input {
+            margin: 10px 0;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.2s ease;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+
+        .results-section {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .score-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+
+        .similarity-score {
+            font-size: 3rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .risk-low { color: #28a745; }
+        .risk-medium { color: #ffc107; }
+        .risk-high { color: #dc3545; }
+
+        .issues-list, .recommendations-list {
+            list-style: none;
+            margin: 15px 0;
+        }
+
+        .issues-list li, .recommendations-list li {
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 6px;
+            border-left: 4px solid;
+        }
+
+        .spelling-issue { border-left-color: #dc3545; background: #f8d7da; }
+        .grammar-issue { border-left-color: #fd7e14; background: #ffe5d0; }
+        .capitalization-issue { border-left-color: #ffc107; background: #fff3cd; }
+        .formatting-issue { border-left-color: #17a2b8; background: #d1ecf1; }
+        .punctuation-issue { border-left-color: #6f42c1; background: #e2e3f5; }
+
+        .recommendations-list li {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+
+        .issue-details {
+            margin-top: 5px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .text-preview {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .highlight {
+            background-color: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 3px;
+            border: 1px solid #ffeaa7;
+        }
+
+        .corrected {
+            background-color: #d4edda;
+            padding: 2px 4px;
+            border-radius: 3px;
+            border: 1px solid #c3e6cb;
+        }
+
+        .supported-formats {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        /* Enhanced Statistics Styles */
+        .stats-grid.comprehensive {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-card.main-stat {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .stat-card.main-stat .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-card.main-stat .stat-number {
+            color: white;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .stat-card.main-stat .stat-label {
+            color: rgba(255,255,255,0.9);
+        }
+
+        .issues-breakdown {
+            margin: 25px 0;
+        }
+
+        .breakdown-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .breakdown-item {
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .breakdown-item.spelling { background: #f8d7da; border-left: 4px solid #dc3545; }
+        .breakdown-item.grammar { background: #ffe5d0; border-left: 4px solid #fd7e14; }
+        .breakdown-item.capitalization { background: #fff3cd; border-left: 4px solid #ffc107; }
+        .breakdown-item.formatting { background: #d1ecf1; border-left: 4px solid #17a2b8; }
+        .breakdown-item.punctuation { background: #e2e3f5; border-left: 4px solid #6f42c1; }
+
+        .breakdown-count {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: block;
+        }
+
+        .breakdown-label {
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .real-time-stats {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #28a745;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .stat-item .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-item .stat-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .perfect-score {
+            text-align: center;
+            padding: 30px;
+            background: #d4edda;
+            border-radius: 10px;
+            border: 2px solid #c3e6cb;
+        }
+
+        .perfect-score h3 {
+            color: #155724;
+            margin-bottom: 10px;
+        }
+
+        .preview-stats {
+            text-align: right;
+            margin-top: 10px;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        /* Plagiarism specific stats */
+        .similarity-breakdown {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .similarity-metric {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .metric-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                padding: 12px 20px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                margin: 5px 0;
+            }
+            
+            .stats-grid.comprehensive {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .breakdown-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>GRAMOPHY PRO</h1>
+            <p>Advanced Grammar & Plagiarism Checker with Real-time Analytics</p>
+        </div>
+
+        <div class="main-card">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('grammar-tab')">Grammar Checker</button>
+                <button class="tab" onclick="switchTab('plagiarism-tab')">Plagiarism Check</button>
+            </div>
+
+            <!-- Grammar Checker Tab -->
+            <div id="grammar-tab" class="tab-content active">
+                <div class="input-section">
+                    <h3>Enter Text or Upload Document</h3>
+                    
+                    <div class="file-upload">
+                        <h4>Upload Document</h4>
+                        <input type="file" id="file-input" accept=".txt,.pdf,.docx">
+                        <div class="supported-formats">Supported formats: TXT, PDF, DOCX</div>
+                        <button class="btn" onclick="extractTextFromFile()" id="extract-btn">
+                            Extract Text from File
+                        </button>
+                    </div>
+
+                    <textarea id="input-text" placeholder="Paste your text here or extract from file above..." oninput="updateRealTimeStats()"></textarea>
+                    
+                    <!-- Real-time Statistics -->
+                    <div class="real-time-stats" id="real-time-stats" style="display: none;">
+                        <h4>📊 Real-time Text Statistics</h4>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-number" id="word-count">0</div>
+                                <div class="stat-label">Words</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number" id="char-count">0</div>
+                                <div class="stat-label">Characters</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number" id="sentence-count">0</div>
+                                <div class="stat-label">Sentences</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number" id="paragraph-count">0</div>
+                                <div class="stat-label">Paragraphs</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number" id="reading-time">0m</div>
+                                <div class="stat-label">Reading Time</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn" onclick="checkGrammar()" id="grammar-btn">
+                            Check Grammar
+                        </button>
+                        <button class="btn btn-success" onclick="autoCorrect()" id="auto-correct-btn" style="display: none;">
+                            Auto Correct All
+                        </button>
+                        <button class="btn btn-warning" onclick="downloadText()" id="download-btn" style="display: none;">
+                            Download Corrected Text
+                        </button>
+                        <button class="btn btn-danger" onclick="clearAll()">
+                            Clear All
+                        </button>
+                    </div>
+                </div>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Processing your text...</p>
+                </div>
+
+                <div class="results-section" id="grammar-results">
+                    <!-- Grammar results will be displayed here -->
+                </div>
+            </div>
+
+            <!-- Plagiarism Check Tab -->
+            <div id="plagiarism-tab" class="tab-content">
+                <div class="input-section">
+                    <h3>Check Plagiarism & Grammar</h3>
+                    <textarea id="plagiarism-text" placeholder="Enter text to check for plagiarism..."></textarea>
+                    
+                    <button class="btn" onclick="checkPlagiarism()" id="plagiarism-btn">
+                        Check Plagiarism & Grammar
+                    </button>
+                </div>
+
+                <div class="loading" id="plagiarism-loading">
+                    <div class="spinner"></div>
+                    <p>Checking for plagiarism and grammar issues...</p>
+                </div>
+
+                <div class="results-section" id="plagiarism-results">
+                    <!-- Plagiarism results will be displayed here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentCorrectedText = '';
+        let currentFilename = 'corrected_text.txt';
+
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        // Real-time statistics calculation
+        function updateRealTimeStats() {
+            const text = document.getElementById('input-text').value;
+            const statsSection = document.getElementById('real-time-stats');
+            
+            if (text.trim().length > 0) {
+                statsSection.style.display = 'block';
+                
+                // Basic calculations
+                const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
+                const charCount = text.length;
+                const sentenceCount = text.split(/[.!?]+/).filter(s => s.trim()).length;
+                const paragraphCount = text.split(/\n+/).filter(p => p.trim()).length;
+                const readingTime = Math.ceil(wordCount / 200);
+                
+                document.getElementById('word-count').textContent = wordCount;
+                document.getElementById('char-count').textContent = charCount;
+                document.getElementById('sentence-count').textContent = sentenceCount;
+                document.getElementById('paragraph-count').textContent = paragraphCount;
+                document.getElementById('reading-time').textContent = readingTime + 'm';
+            } else {
+                statsSection.style.display = 'none';
+            }
+        }
+
+        async function extractTextFromFile() {
+            const fileInput = document.getElementById('file-input');
+            const extractBtn = document.getElementById('extract-btn');
+            const loading = document.getElementById('loading');
+            const inputText = document.getElementById('input-text');
+
+            if (!fileInput.files[0]) {
+                alert('Please select a file first');
+                return;
+            }
+
+            loading.style.display = 'block';
+            extractBtn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const response = await fetch('/extract_text', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+
+                inputText.value = result.extracted_text;
+                currentFilename = 'corrected_' + result.filename.replace(/\.[^/.]+$/, "") + '.txt';
+                updateRealTimeStats();
+                alert('Text extracted successfully! Now you can check grammar.');
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                loading.style.display = 'none';
+                extractBtn.disabled = false;
+            }
+        }
+
+        async function checkGrammar() {
+            const inputText = document.getElementById('input-text').value;
+            const grammarBtn = document.getElementById('grammar-btn');
+            const loading = document.getElementById('loading');
+            const resultsSection = document.getElementById('grammar-results');
+            const autoCorrectBtn = document.getElementById('auto-correct-btn');
+            const downloadBtn = document.getElementById('download-btn');
+
+            if (!inputText.trim()) {
+                alert('Please enter some text or upload a file first');
+                return;
+            }
+
+            loading.style.display = 'block';
+            resultsSection.style.display = 'none';
+            grammarBtn.disabled = true;
+            autoCorrectBtn.style.display = 'none';
+            downloadBtn.style.display = 'none';
+
+            try {
+                const response = await fetch('/check_grammar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: inputText })
+                });
+
+                const result = await response.json();
+
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+
+                displayGrammarResults(result);
+                currentCorrectedText = result.corrected_text;
+                
+                // Show action buttons
+                autoCorrectBtn.style.display = 'inline-block';
+                downloadBtn.style.display = 'inline-block';
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                loading.style.display = 'none';
+                grammarBtn.disabled = false;
+            }
+        }
+
+        function displayGrammarResults(result) {
+            const resultsSection = document.getElementById('grammar-results');
+            
+            // Create comprehensive statistics display
+            const statsHTML = `
+                <div class="stats-grid comprehensive">
+                    <div class="stat-card main-stat">
+                        <div class="stat-number">${result.accuracy_score}%</div>
+                        <div class="stat-label">Overall Score</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${result.text_stats.word_count}</div>
+                        <div class="stat-label">Total Words</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${result.text_stats.char_count_with_spaces}</div>
+                        <div class="stat-label">Characters</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${result.issue_counts.total}</div>
+                        <div class="stat-label">Total Issues</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${result.text_stats.sentence_count}</div>
+                        <div class="stat-label">Sentences</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${result.text_stats.paragraph_count}</div>
+                        <div class="stat-label">Paragraphs</div>
+                    </div>
+                </div>
+                
+                <div class="issues-breakdown">
+                    <h4>📝 Issues Breakdown</h4>
+                    <div class="breakdown-grid">
+                        <div class="breakdown-item spelling">
+                            <span class="breakdown-count">${result.issue_counts.spelling}</span>
+                            <span class="breakdown-label">Spelling</span>
+                        </div>
+                        <div class="breakdown-item grammar">
+                            <span class="breakdown-count">${result.issue_counts.grammar}</span>
+                            <span class="breakdown-label">Grammar</span>
+                        </div>
+                        <div class="breakdown-item capitalization">
+                            <span class="breakdown-count">${result.issue_counts.capitalization}</span>
+                            <span class="breakdown-label">Capitalization</span>
+                        </div>
+                        <div class="breakdown-item formatting">
+                            <span class="breakdown-count">${result.issue_counts.formatting}</span>
+                            <span class="breakdown-label">Formatting</span>
+                        </div>
+                        <div class="breakdown-item punctuation">
+                            <span class="breakdown-count">${result.issue_counts.punctuation}</span>
+                            <span class="breakdown-label">Punctuation</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            let issuesHTML = '';
+            if (result.issue_counts.total > 0) {
+                issuesHTML = `
+                    <h4>🔍 Detailed Issues</h4>
+                    <ul class="issues-list">
+                        ${result.issues.map(issue => `
+                            <li class="${issue.type}-issue">
+                                <strong>${issue.type.toUpperCase()}:</strong> 
+                                <span class="highlight">"${issue.original}"</span>
+                                <div class="issue-details">
+                                    <strong>→ Correct to:</strong> 
+                                    <span class="corrected">"${issue.corrected}"</span>
+                                    <br>
+                                    <em>${issue.suggestion}</em>
+                                </div>
+                            </li>
+                        `).join('')}
+                    </ul>
+                `;
+            } else {
+                issuesHTML = `
+                    <div class="perfect-score">
+                        <h3>🎉 Perfect Score!</h3>
+                        <p>No grammar or spelling issues found. Your text is excellent!</p>
+                    </div>
+                `;
+            }
+
+            resultsSection.innerHTML = `
+                <div class="score-card">
+                    <h3>📊 Comprehensive Analysis Results</h3>
+                    ${statsHTML}
+                    ${issuesHTML}
+                    
+                    <div class="recommendations-section">
+                        <h4>💡 Recommendations</h4>
+                        <ul class="recommendations-list">
+                            ${generateGrammarRecommendations(result).map(rec => `<li>${rec}</li>`).join('')}
+                        </ul>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <h4>📝 Corrected Text Preview</h4>
+                        <div class="text-preview">
+                            ${result.corrected_text}
+                        </div>
+                        <div class="preview-stats">
+                            <small>Corrected version: ${result.corrected_stats.word_count} words, 
+                            ${result.corrected_stats.char_count_with_spaces} characters</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            resultsSection.style.display = 'block';
+        }
+
+        // Function to generate grammar-specific recommendations
+        function generateGrammarRecommendations(result) {
+            const recommendations = [];
+            
+            if (result.accuracy_score >= 90) {
+                recommendations.push("✅ Excellent writing quality! Keep up the good work.");
+            } else if (result.accuracy_score >= 70) {
+                recommendations.push("👍 Good effort! Some minor improvements needed.");
+            } else {
+                recommendations.push("📚 Consider reviewing basic grammar rules for better writing.");
+            }
+            
+            if (result.issue_counts.spelling > 5) {
+                recommendations.push("🔤 Multiple spelling errors detected. Use a spell checker regularly.");
+            } else if (result.issue_counts.spelling > 0) {
+                recommendations.push("🔤 Few spelling mistakes found. Double-check uncommon words.");
+            }
+            
+            if (result.issue_counts.grammar > 3) {
+                recommendations.push("📝 Several grammar issues found. Review sentence structure.");
+            }
+            
+            if (result.issue_counts.capitalization > 0) {
+                recommendations.push("🔠 Check sentence capitalization rules.");
+            }
+            
+            if (result.text_stats.avg_word_length > 6) {
+                recommendations.push("📊 Consider using simpler words for better readability.");
+            }
+            
+            if (result.text_stats.reading_time_minutes > 5) {
+                recommendations.push("⏱️ Long content detected. Consider breaking into sections.");
+            }
+            
+            recommendations.push("💡 Always proofread your work before final submission.");
+            recommendations.push("✍️ Practice writing regularly to improve your skills.");
+            
+            return recommendations;
+        }
+
+        async function autoCorrect() {
+            const inputText = document.getElementById('input-text').value;
+            const autoCorrectBtn = document.getElementById('auto-correct-btn');
+            const downloadBtn = document.getElementById('download-btn');
+
+            if (!inputText.trim()) {
+                alert('Please enter some text first');
+                return;
+            }
+
+            autoCorrectBtn.disabled = true;
+            autoCorrectBtn.textContent = 'Correcting...';
+
+            try {
+                const response = await fetch('/auto_correct', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: inputText })
+                });
+
+                const result = await response.json();
+
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+
+                // Update the textarea with corrected text
+                document.getElementById('input-text').value = result.corrected_text;
+                currentCorrectedText = result.corrected_text;
+                updateRealTimeStats();
+                
+                alert('All issues have been automatically corrected!');
+                
+                // Hide grammar results since text is now corrected
+                document.getElementById('grammar-results').style.display = 'none';
+                
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                autoCorrectBtn.disabled = false;
+                autoCorrectBtn.textContent = 'Auto Correct All';
+            }
+        }
+
+        async function downloadText() {
+            const downloadBtn = document.getElementById('download-btn');
+            const textToDownload = currentCorrectedText || document.getElementById('input-text').value;
+
+            if (!textToDownload.trim()) {
+                alert('No text to download');
+                return;
+            }
+
+            downloadBtn.disabled = true;
+            downloadBtn.textContent = 'Downloading...';
+
+            try {
+                const response = await fetch('/download_text', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        text: textToDownload,
+                        filename: currentFilename
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Download failed');
+                }
+
+                // Create blob and download
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = currentFilename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                
+                alert('File downloaded successfully!');
+            } catch (error) {
+                alert('Error downloading file: ' + error.message);
+            } finally {
+                downloadBtn.disabled = false;
+                downloadBtn.textContent = 'Download Corrected Text';
+            }
+        }
+
+        function clearAll() {
+            document.getElementById('input-text').value = '';
+            document.getElementById('file-input').value = '';
+            document.getElementById('grammar-results').style.display = 'none';
+            document.getElementById('auto-correct-btn').style.display = 'none';
+            document.getElementById('download-btn').style.display = 'none';
+            document.getElementById('real-time-stats').style.display = 'none';
+            currentCorrectedText = '';
+            currentFilename = 'corrected_text.txt';
+        }
+
+        // Plagiarism check functions
+        async function checkPlagiarism() {
+            const text = document.getElementById('plagiarism-text').value;
+            const plagiarismBtn = document.getElementById('plagiarism-btn');
+            const loading = document.getElementById('plagiarism-loading');
+            const resultsSection = document.getElementById('plagiarism-results');
+
+            if (!text.trim()) {
+                alert('Please enter some text to check for plagiarism');
+                return;
+            }
+
+            loading.style.display = 'block';
+            resultsSection.style.display = 'none';
+            plagiarismBtn.disabled = true;
+
+            try {
+                const response = await fetch('/check_plagiarism_full', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: text })
+                });
+
+                const result = await response.json();
+
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+
+                displayPlagiarismResults(result.results);
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                loading.style.display = 'none';
+                plagiarismBtn.disabled = false;
+            }
+        }
+
+        function displayPlagiarismResults(results) {
+            const resultsSection = document.getElementById('plagiarism-results');
+            
+            let riskClass = 'risk-low';
+            if (results.risk_level === 'Medium') riskClass = 'risk-medium';
+            if (results.risk_level === 'High') riskClass = 'risk-high';
+
+            // Create similarity breakdown
+            let similarityBreakdown = '';
+            if (results.matched_sources.length > 0) {
+                const source = results.matched_sources[0]; // Take the highest match
+                similarityBreakdown = `
+                    <div class="similarity-breakdown">
+                        <div class="similarity-metric">
+                            <div class="metric-value">${source.cosine_similarity}%</div>
+                            <div class="metric-label">Cosine</div>
+                        </div>
+                        <div class="similarity-metric">
+                            <div class="metric-value">${source.jaccard_similarity}%</div>
+                            <div class="metric-label">Jaccard</div>
+                        </div>
+                        <div class="similarity-metric">
+                            <div class="metric-value">${source.sequence_similarity}%</div>
+                            <div class="metric-label">Sequence</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            let grammarIssuesHTML = '';
+            if (results.grammar_issues.length > 0) {
+                grammarIssuesHTML = `
+                    <div class="score-card">
+                        <h3>Grammar Analysis</h3>
+                        <h4>Grammar Issues (${results.grammar_issues.length} found)</h4>
+                        <ul class="issues-list">
+                            ${results.grammar_issues.slice(0, 5).map(issue => `
+                                <li class="${issue.type}-issue">
+                                    <strong>${issue.type.toUpperCase()}:</strong> ${issue.original}
+                                    <br><em>Suggestion: ${issue.suggestion}</em>
+                                </li>
+                            `).join('')}
+                        </ul>
+                        ${results.grammar_issues.length > 5 ? `<p>... and ${results.grammar_issues.length - 5} more issues</p>` : ''}
+                    </div>
+                `;
+            }
+
+            resultsSection.innerHTML = `
+                <div class="score-card">
+                    <h3>Plagiarism Analysis Results</h3>
+                    <div class="similarity-score ${riskClass}">
+                        ${results.similarity_score}%
+                    </div>
+                    ${similarityBreakdown}
+                    <p><strong>Risk Level:</strong> ${results.risk_level}</p>
+                    <p><strong>Total Words Checked:</strong> ${results.total_words}</p>
+                    <p><strong>Grammar Accuracy:</strong> ${results.accuracy_score}%</p>
+                    
+                    ${results.matched_sources.length > 0 ? `
+                        <h4>Matched Sources</h4>
+                        <ul>
+                            ${results.matched_sources.map(source => `
+                                <li>${source.filename}: ${source.similarity}% similarity</li>
+                            `).join('')}
+                        </ul>
+                    ` : '<p>No significant matches found in dataset.</p>'}
+                </div>
+
+                ${grammarIssuesHTML}
+
+                <div class="score-card">
+                    <h3>Recommendations</h3>
+                    <ul class="recommendations-list">
+                        ${results.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+
+            resultsSection.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
